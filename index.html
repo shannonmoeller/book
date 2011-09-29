@@ -1,4 +1,4 @@
 <!doctype html>
 <script src="book.js"></script>
 <script src="aliases.js"></script>
-<script>Book.load(location.search.slice(1));</script>
+<script>Book.load(decodeURIComponent(location.search.slice(1)));</script>
