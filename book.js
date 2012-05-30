@@ -1,133 +1,116 @@
-/*global console, location, window*/
-var Book = (function () {
+/*jslint regexp: true */
+(function (global) {
+    'use strict';
 
-	var // Whether to log result to console
-		log,
+    var els = global.document.querySelectorAll('script[src*=book\\.js]'),
+        attr = els[els.length - 1].src.replace(/^[^\?]*\?/, ''),
+        args = global.decodeURIComponent(attr).split(/[\s+]+/),
+        log = false,
 
-		// Object containing aliases
-		aliases = {
-			log: function () { log = true; }
-		},
+        exec = function (obj) {
+            if (args.length) {
+                obj[args.shift()]();
+            }
+        },
 
-		// Match space
-		space = /[ +]+/,
+        go = function (url) {
+            url += args.join('/');
 
-		// Match substring
-		substring = /\{\}/,
+            if (log) {
+                global.console.log(url);
+                return;
+            }
 
-		// Match protocol
-		protocol = /^(http|javascript)/;
+            global.location.href = url;
+        },
+        
+        load = function (url) {
+            return function () {
+                var el = global.document.createElement('script');
 
-	// Object handler
-	function handle(obj, uri, query) {
-		var val;
+                global.document.body.appendChild(el).src = url;
+            }
+        },
 
-		// Type-based alias handling
-		switch ((obj instanceof Array && 'array') || typeof obj) {
-			// Add string alias to uri
-			case 'string':
-				uri.push(obj);
-				break;
+        toGo = function (url) {
+            return function () {
+                go(url);
+            };
+        };
 
-			// Add array alias to query
-			case 'array':
-				query.unshift.apply(query, obj);
-				break;
+    exec({
+        // Do or do not.
+        log: function () {
+            log = true;
 
-			// Handle the result of executing a function alias
-			case 'function':
-				// Execute the function
-				val = obj.call(this, uri, query);
+            exec(this);
+        },
+        
+    	// HTML5 Support
+    	5: function () {
+            exec({   
+            	c: toGo('http://caniuse.com/'),
+                d: toGo('http://html5doctor.com/'),
+                p: toGo('http://html5please.com/'),
+                t: toGo('http://html5test.com/')
+            });
+    	},
+    
+    	// Bookmarklets
+    	b: function () {
+            exec({
+                a: load('http://erkie.github.com/asteroids.min.js'),
+            	d: load('http://mir.aculo.us/dom-monster/dommonster.js'),
+                f: load('http://getfirebug.com/firebug-lite.js'),
+                j: load('http://code.jquery.com/jquery.js')
+            });
+    	},
+        
+    	// Google
+    	g: function () {
+            var url = 'http://google.com/';
+            
+            if (args.length) {
+        		url += 'search?q=';
+                url += args.join('+');
+            }
+            
+            go(url);
+    	},
+    
+    
+    	// Mozilla Developer Network
+    	m: function () {
+    		var url = 'http://developer.mozilla.org/';
+            
+            if (args.length) {
+            	url += 'en-US/search?q=';
+                url += args.join('+');
+            }
+            
+            go(url);
+    	},
+        
+        // Social
+        s: function () {
+            exec({
+                f: toGo('http://facebook.com/shannonmoeller/'),
+    	        l: toGo('http://linkedin.com/in/shannonmoeller/'),
+            	t: toGo('http://twitter.com/shannonmoeller/')
+            });
+        },
+    
+    	// Wikipedia
+    	w: function (u) {
+    		var url = 'http://en.wikipedia.org/');
+            
+            if (args.length) {
+                url += 'wiki/Special:Search?search=';
+                url += args.join('+');
+            }
+            
+            go(url);
+    	}
+    });
 
-				// Terminate current handing
-				if (val === false) {
-					// Empty uri and query
-					uri.length = 0;
-					query.length = 0;
-
-					// End handling
-					break;
-				}
-
-				// Handle result
-				handle.call(this, val || this, uri, query);
-
-				break;
-
-			// Match query items to object alias
-			case 'object':
-				// Mungable array loop
-				while (query.length) {
-					// Left-to-right
-					val = query.shift();
-
-					// Has alias?
-					if (!obj[val]) {
-						// Put value back
-						query.unshift(val);
-
-						// End handling
-						break;
-					}
-
-					// Handle alias
-					handle.call(obj, obj[val], uri, query);
-				}
-
-				break;
-		}
-	}
-
-	return {
-		// Register new aliases
-		add: function (obj) {
-			var p;
-
-			for (p in obj) {
-				if (obj.hasOwnProperty(p)) {
-					aliases[p] = obj[p];
-				}
-			}
-		},
-
-		// Parse a bookmark shortcut
-		parse: function (str) {
-			var uri = [],
-				query = str.split(space);
-
-			// Handle modifies uri and query
-			handle(aliases, uri, query);
-
-			// Reduce uri
-			uri = uri.join('');
-
-			// Substring injection
-			while (substring.test(uri)) {
-				uri = uri.replace(substring, query.shift() || '');
-			}
-
-			// Return final result
-			return uri + query.join('+');
-		},
-
-		// Parse a bookmark shortcut and redirect to result
-		load: function (str, open) {
-			// Parse string
-			var uri = Book.parse(str);
-
-			// Only redirect if we're not logging and have a plausible uri
-			if (!log && protocol.test(uri)) {
-				if (open) {
-					window.open(uri);
-				}
-				else {
-					location.href = uri;
-				}
-			}
-			else if (window.console) {
-				console.log(uri);
-			}
-		}
-	};
-
-}());
+}(this));
