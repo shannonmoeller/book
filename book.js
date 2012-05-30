@@ -47,16 +47,6 @@
 			exec(this);
 		},
 
-		// HTML5 Support
-		5: function () {
-			exec({
-				c: toGo('http://caniuse.com/'),
-				d: toGo('http://html5doctor.com/'),
-				p: toGo('http://html5please.com/'),
-				t: toGo('http://html5test.com/')
-			});
-		},
-
 		// Bookmarklets
 		b: function () {
 			exec({
@@ -79,6 +69,15 @@
 			go(url);
 		},
 
+		// HTML5 Support
+		h: function () {
+			exec({
+				c: toGo('http://caniuse.com/'),
+				d: toGo('http://html5doctor.com/'),
+				p: toGo('http://html5please.com/'),
+				t: toGo('http://html5test.com/')
+			});
+		},
 
 		// Mozilla Developer Network
 		m: function () {
