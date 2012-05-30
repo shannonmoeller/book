@@ -73,7 +73,7 @@
 
 			if (args.length) {
 				url += 'search?q=';
-				url += args.join('+');
+				url += args.splice(0).join('+');
 			}
 
 			go(url);
@@ -86,7 +86,7 @@
 
 			if (args.length) {
 				url += 'en-US/search?q=';
-				url += args.join('+');
+				url += args.splice(0).join('+');
 			}
 
 			go(url);
@@ -107,7 +107,7 @@
 
 			if (args.length) {
 				url += 'wiki/Special:Search?search=';
-				url += args.join('+');
+				url += args.splice(0).join('+');
 			}
 
 			go(url);
