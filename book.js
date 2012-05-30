@@ -15,7 +15,9 @@
 		},
 
 		go = function (url) {
-			url += args.join('/');
+			if (args.length) {
+				url += args.join('/');
+			}
 
 			if (log) {
 				global.console.log(url);
