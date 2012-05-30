@@ -2,7 +2,8 @@
 (function (global) {
     'use strict';
 
-    var els = global.document.querySelectorAll('script[src*=book\\.js]'),
+    var doc = global.document,
+        els = doc.querySelectorAll('script[src*=book\\.js]'),
         attr = els[els.length - 1].src.replace(/^[^\?]*\?/, ''),
         args = global.decodeURIComponent(attr).split(/[\s+]+/),
         log = false,
@@ -26,9 +27,9 @@
         
         load = function (url) {
             return function () {
-                var el = global.document.createElement('script');
+                var el = doc.createElement('script');
 
-                global.document.body.appendChild(el).src = url;
+                doc.body.appendChild(el).src = url;
             }
         },
 
